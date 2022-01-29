@@ -1,0 +1,17 @@
+{
+  "name": "war-and-civilization",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/js/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.0.0",
+    "figlet": "^1.5.2",
+    "inquirer": "^8.2.0"
+  }
+}
