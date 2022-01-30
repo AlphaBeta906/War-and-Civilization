@@ -6,6 +6,27 @@ import { readJson } from './json.js';
 import { randint } from './random.js';
 import { Nation } from './nation.js';
 
+async function create_nation() {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'name',
+            message: 'What is the name of your nation?',
+            validate: function (input) {
+                if (input.trim().length < 1) {
+                    return 'Please enter a name.';
+                } else if (["Betaland", "Empire of the West"].includes(input.trim())) {
+                    return 'Please enter a different name.';
+                }
+                return true;
+            }
+        },
+    ]).then(function(answers) {
+        let nation = new Nation(answers.name.trim());
+        nation.info();
+    });
+}
+
 async function main() {
     const res = await readJson('src/data/data.json');
 
@@ -20,10 +41,7 @@ async function main() {
             }
         ]).then((answers) => {
             if (answers.newGame) {
-                console.log(chalk.green('\nStarting new game...'));
-                const nation = new Nation("Alphadonia")
-
-                nation.info();
+                create_nation();
             } else {
                 console.log(chalk.red('Exiting...'));
             }

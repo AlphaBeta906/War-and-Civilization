@@ -12,4 +12,7 @@ export class Nation {
     info() {
         console.log(`\n${chalk.bold(this.name)}:\n${chalk.bold(chalk.yellow("Economy"))}: ${this.economy.type()} (${this.economy.value})\n${chalk.bold(chalk.blue("Government"))}: ${this.government.type()} (${this.government.value})`);
     }
+    get_difference(nation) {
+        return (this.economy.value - nation.economy.value) + (this.government.value - nation.government.value);
+    }
 }
