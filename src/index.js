@@ -130,7 +130,7 @@ async function create_nation() {
 
         if (answers.done) {
             const nation = new Nation(name.trim(), new Economy(economy), new Government(government));
-            writeJson('src/data/data.json', nation.get_json());
+            writeJson('data/data.json', nation.get_json());
         } else {
             create_nation();
         }
@@ -138,7 +138,7 @@ async function create_nation() {
 }
 
 async function main() {
-    const res = await readJson('src/data/data.json');
+    const res = await readJson('data/data.json');
 
     if (Object.keys(res).length === 0) {
         console.log(chalk.red('No data found, new game?\n'));
