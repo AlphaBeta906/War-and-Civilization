@@ -2,6 +2,7 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import figlet from 'figlet';
 import clear from 'clear';
+import gradient from 'gradient-string';
 
 import { readJson } from './json.js';
 import { Nation } from './nation.js';
@@ -161,9 +162,9 @@ async function main() {
 async function title_screen() {
     clear();
     console.log(
-        chalk.red(figlet.textSync('War')) + '\n' + 
-        chalk.green(figlet.textSync('And')) + '\n' + 
-        chalk.blue(figlet.textSync('Civilization')) + '\n\n' +
+        gradient("red", "white", "blue").multiline(
+            figlet.textSync('War\nAnd\nCivilization')
+        ) + '\n\n' +
         chalk.yellow('By: ') + chalk.cyan('AlphaBeta906') + ' - ' + chalk.red('v1.3.1') + '\n\n'
     );    
 
