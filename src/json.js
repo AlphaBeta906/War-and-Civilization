@@ -6,7 +6,7 @@ export async function readJson(filePath) {
             if (err) {
                 reject(err);
             } else {
-                resolve(JSON.parse(data));
+                resolve(JSON.parse(data === '' ? '{}' : data));
             }
         })
     });

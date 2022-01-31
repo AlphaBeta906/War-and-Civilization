@@ -3,11 +3,13 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 import clear from 'clear';
 import gradient from 'gradient-string';
+import { mkdir, access, writeFile } from 'fs';
 
 import { readJson, writeJson } from './json.js';
 import { Nation } from './nation.js';
 import { Economy } from './economy.js';
 import { Government } from './government.js';
+import { exit } from 'process';
 
 async function create_nation() {
     clear();
@@ -138,25 +140,58 @@ async function create_nation() {
 }
 
 async function main() {
-    const res = await readJson('data/data.json');
+    access('data/data.json', (err) => {
+        if (!err) {
+            const res = readJson('data/data.json');
 
-    if (Object.keys(res).length === 0) {
-        console.log(chalk.red('No data found, new game?\n'));
+            if (Object.keys(res).length === 0) {
+                console.log(chalk.red('No data found, new game?\n'));
+        
+                inquirer.prompt([
+                    {
+                        type: 'confirm',
+                        name: 'newGame',
+                        message: 'Start a new game?'
+                    }
+                ]).then((answers) => {
+                    if (answers.newGame) {
+                        create_nation();
+                    } else {
+                        console.log(chalk.red('Exiting...'));
+                    }
+                });
+            }
+        } else {
+            mkdir('./data', function (err) {
+                if (err) {
+                    console.log(chalk.red(err.toString()));
+                    exit(0)
+                }
+            });
+            writeFile('data/data.json', '{}', function (err) {
+                if (err) {
+                    console.log(chalk.red(err.toString()));
+                    exit(0)
+                }
+            });
 
-        inquirer.prompt([
-            {
-                type: 'confirm',
-                name: 'newGame',
-                message: 'Start a new game?'
-            }
-        ]).then((answers) => {
-            if (answers.newGame) {
-                create_nation();
-            } else {
-                console.log(chalk.red('Exiting...'));
-            }
-        });
-    }
+            console.log(chalk.red('No data found, new game?\n'));
+
+            inquirer.prompt([
+                {
+                    type: 'confirm',
+                    name: 'newGame',
+                    message: 'Start a new game?'
+                }
+            ]).then((answers) => {
+                if (answers.newGame) {
+                    create_nation();
+                } else {
+                    console.log(chalk.red('Exiting...'));
+                }
+            });
+        }
+    });
 }
 
 async function title_screen() {
@@ -165,7 +200,7 @@ async function title_screen() {
         gradient("red", "white", "blue").multiline(
             figlet.textSync('War\nAnd\nCivilization', {font: 'gothic'})
         ) + '\n\n' +
-        chalk.yellow('By: ') + chalk.cyan('AlphaBeta906') + ' - ' + chalk.red('v1.3.2') + '\n\n'
+        chalk.yellow('By: ') + chalk.cyan('AlphaBeta906') + ' - ' + chalk.red('v1.4') + '\n\n'
     );    
 
     inquirer.prompt([
