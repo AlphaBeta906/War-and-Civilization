@@ -15,4 +15,11 @@ export class Nation {
     get_difference(nation) {
         return (this.economy.value - nation.economy.value) + (this.government.value - nation.government.value);
     }
+    get_json() {
+        return {
+            name: this.name,
+            economy: this.economy.value,
+            government: this.government.value
+        };
+    }
 }

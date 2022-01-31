@@ -1,4 +1,4 @@
-import { readFile } from 'fs';
+import { readFile, writeFile } from 'fs';
 
 export async function readJson(filePath) {
     return new Promise((resolve, reject) => {
@@ -9,5 +9,17 @@ export async function readJson(filePath) {
                 resolve(JSON.parse(data));
             }
         })
+    });
+}
+
+export async function writeJson(filePath, data) {
+    return new Promise((resolve, reject) => {
+        writeFile(`${process.cwd()}/${filePath}`, JSON.stringify(data), (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
     });
 }

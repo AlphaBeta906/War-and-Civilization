@@ -4,7 +4,7 @@ import figlet from 'figlet';
 import clear from 'clear';
 import gradient from 'gradient-string';
 
-import { readJson } from './json.js';
+import { readJson, writeJson } from './json.js';
 import { Nation } from './nation.js';
 import { Economy } from './economy.js';
 import { Government } from './government.js';
@@ -130,7 +130,7 @@ async function create_nation() {
 
         if (answers.done) {
             const nation = new Nation(name.trim(), new Economy(economy), new Government(government));
-            nation.info();
+            writeJson('src/data/data.json', nation.get_json());
         } else {
             create_nation();
         }
