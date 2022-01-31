@@ -183,7 +183,7 @@ async function title_screen() {
         chalk.red(figlet.textSync('War')) + '\n' + 
         chalk.green(figlet.textSync('And')) + '\n' + 
         chalk.blue(figlet.textSync('Civilization')) + '\n\n' +
-        chalk.yellow('By: ') + chalk.cyan('AlphaBeta906') + ' - ' + chalk.red('v1.2') + '\n\n'
+        chalk.yellow('By: ') + chalk.cyan('AlphaBeta906') + ' - ' + chalk.red('v1.3') + '\n\n'
     );    
 
     inquirer.prompt([
