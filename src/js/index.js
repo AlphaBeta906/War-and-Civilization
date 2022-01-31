@@ -163,9 +163,9 @@ async function title_screen() {
     clear();
     console.log(
         gradient("red", "white", "blue").multiline(
-            figlet.textSync('War\nAnd\nCivilization')
+            figlet.textSync('War\nAnd\nCivilization', {font: 'gothic'})
         ) + '\n\n' +
-        chalk.yellow('By: ') + chalk.cyan('AlphaBeta906') + ' - ' + chalk.red('v1.3.1') + '\n\n'
+        chalk.yellow('By: ') + chalk.cyan('AlphaBeta906') + ' - ' + chalk.red('v1.3.2') + '\n\n'
     );    
 
     inquirer.prompt([
