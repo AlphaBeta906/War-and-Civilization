@@ -3,7 +3,7 @@ import chalk from "chalk";
 import { Economy } from "./economy.js";
 import { Government } from "./government.js";
 
-export class Nation {
+export class Entity {
     constructor(name, economy, government) {
         this.name = name;
         this.economy = economy === undefined ? new Economy() : economy;

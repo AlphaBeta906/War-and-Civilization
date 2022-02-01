@@ -6,7 +6,7 @@ import gradient from 'gradient-string';
 import { mkdir, access, writeFile } from 'fs';
 
 import { readJson, writeJson } from './json.js';
-import { Nation } from './nation.js';
+import { Entity } from './nation.js';
 import { Economy } from './economy.js';
 import { Government } from './government.js';
 import { exit } from 'process';
@@ -131,7 +131,7 @@ async function create_nation() {
         }
 
         if (answers.done) {
-            const nation = new Nation(name.trim(), new Economy(economy), new Government(government));
+            const nation = new Entity(name.trim(), new Economy(economy), new Government(government));
             writeJson('data/data.json', nation.get_json());
         } else {
             create_nation();
@@ -142,25 +142,30 @@ async function create_nation() {
 async function main() {
     access('data/data.json', (err) => {
         if (!err) {
-            const res = readJson('data/data.json');
-
-            if (Object.keys(res).length === 0) {
-                console.log(chalk.red('No data found, new game?\n'));
-        
-                inquirer.prompt([
-                    {
-                        type: 'confirm',
-                        name: 'newGame',
-                        message: 'Start a new game?'
-                    }
-                ]).then((answers) => {
-                    if (answers.newGame) {
-                        create_nation();
-                    } else {
-                        console.log(chalk.red('Exiting...'));
-                    }
-                });
-            }
+            readJson('data/data.json').then((res) => {
+                if (Object.keys(res).length === 0) {
+                    console.log(chalk.red('No data found, new game?\n'));
+            
+                    inquirer.prompt([
+                        {
+                            type: 'confirm',
+                            name: 'newGame',
+                            message: 'Start a new game?'
+                        }
+                    ]).then((answers) => {
+                        if (answers.newGame) {
+                            create_Entity();
+                        } else {
+                            console.log(chalk.red('Exiting...'));
+                        }
+                    });
+                } else {
+                    const nation = new Entity(res.name, new Economy(res.economy), new Government(res.government));
+                    nation.info();
+                }
+            }).catch((err) => {
+                console.log(chalk.red(err.toString()));
+            });
         } else {
             mkdir('./data', function (err) {
                 if (err) {

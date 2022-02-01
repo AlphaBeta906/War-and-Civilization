@@ -14,7 +14,7 @@ export async function readJson(filePath) {
 
 export async function writeJson(filePath, data) {
     return new Promise((resolve, reject) => {
-        writeFile(`${process.cwd()}/${filePath}`, JSON.stringify(data), (err) => {
+        writeFile(`${process.cwd()}/${filePath}`, JSON.stringify(data, null, '\t'), (err) => {
             if (err) {
                 reject(err);
             } else {
