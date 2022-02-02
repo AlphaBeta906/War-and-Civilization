@@ -22,4 +22,43 @@ export class Entity {
             government: this.government.value
         };
     }
+    get_relation(nation) {
+        if (this.get_difference(nation) < -6) {
+            return chalk.hex('#191970')("Historical Partner");
+        } else if (this.get_difference(nation) < -5) {
+            return chalk.hex('#000080')("Partner");
+        } else if (this.get_difference(nation) < -4) {
+            return chalk.blue("Ally");
+        } else if (this.get_difference(nation) < -3) {
+            return chalk.greenBright("Friendly");
+        } else if (this.get_difference(nation) < -2) {
+            return chalk.green("Trustable");
+        } else if (this.get_difference(nation) < -1) {
+            return chalk.hex('#228B22')("Mildly Trustable");
+        } else if (this.get_difference(nation) < 0) {
+            return chalk.white("Neutral");
+        } else if (this.get_difference(nation) < 1) {
+            return chalk.hex('#B22222')("Mildly Untrustable");
+        } else if (this.get_difference(nation) < 2) {
+            return chalk.red("Untrustable");
+        } else if (this.get_difference(nation) < 3) {
+            return chalk.redBright("Unfriendly");
+        } else if (this.get_difference(nation) < 4) {
+            return chalk.hex('#8b0000')("Hostile");
+        } else if (this.get_difference(nation) < 5) {
+            return chalk.hex('#d90000')("Archnemesis");
+        } else {
+            return chalk.hex('#d90000').dim("Party's Enemy");
+        }
+    }
+    get_relationships(game) {
+        const nations = game.get_json().entities.filter(entity => entity.name !== this.name);
+
+        return nations.map(nation => {
+            return {
+                name: nation.name,
+                relation: this.get_relation(new Entity(nation.name, new Economy(nation.economy), new Government(nation.government)))
+            };
+        });
+    }
 }

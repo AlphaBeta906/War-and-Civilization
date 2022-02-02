@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import figlet from 'figlet';
@@ -6,12 +8,20 @@ import gradient from 'gradient-string';
 import { mkdir, access, writeFile } from 'fs';
 
 import { readJson, writeJson } from './json.js';
-import { Entity } from './nation.js';
+import { Entity } from './entity.js';
 import { Economy } from './economy.js';
 import { Government } from './government.js';
+import { Game } from './game.js';
 import { exit } from 'process';
+import { randint } from './random.js';
 
-async function create_nation() {
+function get_game(data) {
+    const game = new Game(data.name, data.entities.map(entity => new Entity(entity.name, new Economy(entity.economy), new Government(entity.government))));
+
+    return game;
+}
+
+async function create_game() {
     clear();
 
     inquirer.prompt([
@@ -73,6 +83,18 @@ async function create_nation() {
             type: 'confirm',
             name: 'done',
             message: 'Are happy with your nation?',
+        },
+        {
+            type: 'input',
+            name: 'world_name',
+            message: 'What is the name of your game?',
+            validate: function (input) {
+                if (input.trim().length < 1) {
+                    return 'Please enter a name.';
+                }
+
+                return true;
+            }
         }
     ]).then(function(answers) {
         var government = 0;
@@ -132,9 +154,21 @@ async function create_nation() {
 
         if (answers.done) {
             const nation = new Entity(name.trim(), new Economy(economy), new Government(government));
-            writeJson('data/data.json', nation.get_json());
+
+            const game = new Game(answers.world_name, [
+                nation,
+                new Entity('Betaland', new Economy(randint(-1, 1)), new Government(randint(-1, 1))),
+                new Entity('Empire of the West', new Economy(randint(-1, 1)), new Government(randint(-1, 1))),
+            ]);
+    
+            writeJson('data/data.json', game.get_json(), function (err) {
+                if (err) {
+                    console.log(chalk.red(err.toString()));
+                    exit(0)
+                }
+            });
         } else {
-            create_nation();
+            create_game();
         }
     });
 }
@@ -154,14 +188,18 @@ async function main() {
                         }
                     ]).then((answers) => {
                         if (answers.newGame) {
-                            create_Entity();
+                            create_game();
                         } else {
                             console.log(chalk.red('Exiting...'));
                         }
                     });
                 } else {
-                    const nation = new Entity(res.name, new Economy(res.economy), new Government(res.government));
-                    nation.info();
+                    const game = get_game(res)
+                    const nation = game.entities[0];
+
+                    nation.get_relationships(game).forEach(function(relation) {
+                        console.log(chalk.yellow(relation.name + ': ' + relation.relation));
+                    });
                 }
             }).catch((err) => {
                 console.log(chalk.red(err.toString()));
@@ -190,7 +228,7 @@ async function main() {
                 }
             ]).then((answers) => {
                 if (answers.newGame) {
-                    create_nation();
+                    create_game();
                 } else {
                     console.log(chalk.red('Exiting...'));
                 }
@@ -226,7 +264,7 @@ async function title_screen() {
                 main();
                 break;
             case 'Credits':
-                console.log(chalk.yellow(`\n${chalk.bold("Credits")}:\nAlphaBeta906 - Programmer\nItzCountryballs - Idea-man\n\n`));
+                console.log(chalk.yellow(`\n${chalk.bold("Credits")}:\nAlphaBeta906 - Programmer\n\n`));
 
                 inquirer.prompt([
                     {
