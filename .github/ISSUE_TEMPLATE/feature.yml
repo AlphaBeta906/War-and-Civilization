@@ -1,0 +1,39 @@
+name: 🐞 Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["enhancement"]
+assignees:
+  - AlphaBeta906
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this feature report
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What do you suggest?
+      description: What do you want to be added to War and Civilization?
+      placeholder: What do you want?
+      value: "I want..."
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why though?
+      attributes:
+        label: Why is it benificial to War and Civilization?
+        description: Why do you want it to be added to War and Civilization?
+        placeholder: Why do you want it?
+        value: "I because..."
+    validations:
+      required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
