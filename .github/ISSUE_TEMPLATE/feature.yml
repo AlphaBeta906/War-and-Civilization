@@ -1,6 +1,6 @@
-name: 🐞 Bug Report
-description: File a bug report
-title: "[Bug]: "
+name: 💡 Feature Request
+description: Suggest a feature
+title: "[Feature]: "
 labels: ["enhancement"]
 assignees:
   - AlphaBeta906
