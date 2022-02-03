@@ -21,12 +21,10 @@ body:
   - type: textarea
     id: why
     attributes:
-      label: Why though?
-      attributes:
-        label: Why is it benificial to War and Civilization?
-        description: Why do you want it to be added to War and Civilization?
-        placeholder: Why do you want it?
-        value: "I because..."
+      label: Why is it benificial to War and Civilization?
+      description: Why do you want it to be added to War and Civilization?
+      placeholder: Why do you want it?
+      value: "Because..."
     validations:
       required: true
   - type: checkboxes
