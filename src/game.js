@@ -1,6 +1,4 @@
-import { Entity } from "./entity.js";
-import { Economy } from "./economy.js";
-import { Government } from "./government.js";
+import { version } from "./version.js";
 
 export class Game {
     constructor(name, entities) {
@@ -13,7 +11,8 @@ export class Game {
     get_json() {
         return {
             name: this.name,
-            entities: this.entities.map(entity => entity.get_json())
+            entities: this.entities.map(entity => entity.get_json()),
+            version: version
         };
     }
 }

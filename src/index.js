@@ -5,15 +5,18 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 import clear from 'clear';
 import gradient from 'gradient-string';
-import { mkdir, access, writeFile } from 'fs';
+import { access, writeFile } from 'fs';
+import { exit } from 'process';
+import { faker } from '@faker-js/faker';
 
 import { readJson, writeJson } from './json.js';
 import { Entity } from './entity.js';
 import { Economy } from './economy.js';
 import { Government } from './government.js';
 import { Game } from './game.js';
-import { exit } from 'process';
+import { IssueHandler } from './issueHandler.js';
 import { randint } from './random.js';
+import { version } from './version.js';
 
 function get_game(data) {
     const game = new Game(data.name, data.entities.map(entity => new Entity(entity.name, new Economy(entity.economy), new Government(entity.government))));
@@ -157,10 +160,10 @@ async function create_game() {
 
             const game = new Game(answers.world_name, [
                 nation,
-                new Entity('Betaland', new Economy(randint(-1, 1)), new Government(randint(-1, 1))),
-                new Entity('Empire of the West', new Economy(randint(-1, 1)), new Government(randint(-1, 1))),
+                new Entity(faker.address.city(), new Economy(randint(-1, 1)), new Government(randint(-1, 1))),
+                new Entity(faker.address.city(), new Economy(randint(-1, 1)), new Government(randint(-1, 1))),
             ]);
-    
+
             writeJson('data/data.json', game.get_json(), function (err) {
                 if (err) {
                     console.log(chalk.red(err.toString()));
@@ -194,23 +197,19 @@ async function main() {
                         }
                     });
                 } else {
-                    const game = get_game(res)
+                    const game = get_game(res);
                     const nation = game.entities[0];
 
-                    nation.get_relationships(game).forEach(function(relation) {
-                        console.log(chalk.yellow(relation.name + ': ' + relation.relation));
+                    readJson('data/issues.json').then((issues) => {
+                        const issueHandler = new IssueHandler(nation.name, issues);
+
+                        issueHandler.infoIssue(0);    
                     });
                 }
             }).catch((err) => {
                 console.log(chalk.red(err.toString()));
             });
         } else {
-            mkdir('./data', function (err) {
-                if (err) {
-                    console.log(chalk.red(err.toString()));
-                    exit(0)
-                }
-            });
             writeFile('data/data.json', '{}', function (err) {
                 if (err) {
                     console.log(chalk.red(err.toString()));
@@ -239,12 +238,13 @@ async function main() {
 
 async function title_screen() {
     clear();
+
     console.log(
         gradient("red", "white", "blue").multiline(
             figlet.textSync('War\nAnd\nCivilization', {font: 'gothic'})
         ) + '\n\n' +
-        chalk.yellow('By: ') + chalk.cyan('AlphaBeta906') + ' - ' + chalk.red('v1.4') + '\n\n'
-    );    
+        chalk.yellow('By: ') + chalk.cyan('AlphaBeta906') + ' - ' + chalk.red('v' + version) + '\n\n'
+    );
 
     inquirer.prompt([
         {
@@ -260,7 +260,6 @@ async function title_screen() {
     ]).then(function(answers) {
         switch(answers.option) {
             case 'Play':
-                console.log(chalk.yellow('\nStarting new game...'));
                 main();
                 break;
             case 'Credits':

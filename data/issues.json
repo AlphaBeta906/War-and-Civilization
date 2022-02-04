@@ -1,0 +1,25 @@
+{
+    "The Age Old Question": {
+        "description": "Recently, a challege has been proposed to your doorstep. The Treaty of @city has been keeping the @nation united, however multiple vulnerabilities has been found with the ancient wordings of the treaty, which makes Alphadonia more currupt and it has a chance of breaking.",
+        "choices": {
+            "Rewrite": {
+                "message": "'We should rewrite the treaty, since it's crucial to our survival.' says patriot @name. 'It worked before, so it should work again.'",
+                "aftermath": "The treaty has been rewritten, and nothing has been solved.",
+                "economy": 0,
+                "government": -0.05
+            },
+            "Ignore": {
+                "message": "'How about this: the treaty is flawed, and no sense of rewriting can keep it from breaking down.' says Minister of Interior Affairs @name. 'We should just ignore it, and hope for the best.'",
+                "aftermath": "The treaty has been ignored, and nothing has been solved.",
+                "economy": 0,
+                "government": 0
+            },
+            "New Treaty": {
+                "message": "'I have heard that the treaty is flawed and this is due to lack of consensus within all entities in the nation.' says child-politician @name. 'We should create a new treaty, with everyone contributing to this.'",
+                "aftermath": "The Treaty of @city has been written.",
+                "economy": 0.25,
+                "government": 0.25
+            }
+        }
+    }
+}
