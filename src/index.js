@@ -8,6 +8,7 @@ import gradient from 'gradient-string';
 import { access, writeFile } from 'fs';
 import { exit } from 'process';
 import { faker } from '@faker-js/faker';
+import { Client } from 'discord-rpc';
 
 import { readJson, writeJson } from './json.js';
 import { Entity } from './entity.js';
@@ -18,6 +19,18 @@ import { IssueHandler } from './issueHandler.js';
 import { randint } from './random.js';
 import { version } from './version.js';
 
+const clientId = '939055957227479040';
+
+const client = new Client({ transport: 'ipc' });
+const startTimestamp = new Date();
+var rpcOn = true
+
+function setActivity(data) {
+    if (rpcOn) {
+        client.setActivity(data)
+    }
+}
+
 function get_game(data) {
     const game = new Game(data.name, data.entities.map(entity => new Entity(entity.name, new Economy(entity.economy), new Government(entity.government))));
 
@@ -26,6 +39,13 @@ function get_game(data) {
 
 async function create_game() {
     clear();
+
+    client.setActivity({
+        details: `Playing War and Civilization ${version}`,
+        state: 'Creating a new game...',
+        startTimestamp,
+        instance: false
+    });
 
     inquirer.prompt([
         {
@@ -197,13 +217,27 @@ async function main() {
                         }
                     });
                 } else {
+                    setActivity({
+                        details: `Playing War and Civilization ${version}`,
+                        state: 'Overcoming issues and events...',
+                        startTimestamp,
+                        instance: false
+                    });
+
                     const game = get_game(res);
                     const nation = game.entities[0];
 
                     readJson('data/issues.json').then((issues) => {
                         const issueHandler = new IssueHandler(nation.name, issues);
 
-                        issueHandler.infoIssue(0);    
+                        issueHandler.infoIssue(0).then((output) => {
+                            setActivity({
+                                details: `Playing War and Civilization ${version}`,
+                                state: output.aftermath, 
+                                startTimestamp,
+                                instance: false
+                            });
+                        });
                     });
                 }
             }).catch((err) => {
@@ -238,6 +272,19 @@ async function main() {
 
 async function title_screen() {
     clear();
+
+    client.on('ready', () => {
+        setActivity({
+            details: `Playing War and Civilization ${version}`,
+            state: 'On a quest to conquer the world...',
+            startTimestamp,
+            instance: false
+        });
+    });
+    
+    client.login({ clientId }).catch((err) => {
+        rpcOn = false;
+    });
 
     console.log(
         gradient("red", "white", "blue").multiline(

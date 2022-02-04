@@ -26,32 +26,43 @@ export class IssueHandler {
         return new_text;
     }
     async infoIssue(number=randnum(0, Object.keys(this.issues).length - 1)) {
-        const issue = this.issues[Object.keys(this.issues)[number]];
+        return new Promise((resolve, reject) => {
+            const issue = this.issues[Object.keys(this.issues)[number]];
 
-        console.log(chalk.blue(this.macro(`Issue #${number}: ${Object.keys(this.issues)[number]}`)));
-        console.log(chalk.reset(this.macro(issue.description + '\n')));
-        for (let choice in issue.choices) {
-            console.log(`${chalk.red(choice)}: ${chalk.reset(this.macro(issue.choices[choice].message))}`);
-        }
-        console.log()
-
-        inquirer.prompt([
-            {
-                type: 'list',
-                name: 'choice',
-                message: 'What to do?',
-                choices: [...Object.keys(issue.choices), 'Dismiss']
+            console.log(chalk.blue(this.macro(`Issue #${number}: ${Object.keys(this.issues)[number]}`)));
+            console.log(chalk.reset(this.macro(issue.description + '\n')));
+            for (let choice in issue.choices) {
+                console.log(`${chalk.red(choice)}: ${chalk.reset(this.macro(issue.choices[choice].message))}`);
             }
-        ]).then((answers) => {
-            if (answers.choice === 'Dismiss') {
-                console.log(chalk.red('Dismissing issue...'));
-            } else {
-                const choice = this.issues[Object.keys(this.issues)[number]].choices[answers.choice];
+            console.log()
 
-                console.log(chalk.blue('Aftermath: ' + this.macro(choice.aftermath) + '\n'));
-                console.log(chalk.yellow('Economy: ' + this.negativePositiveZero(choice.economy)));
-                console.log(chalk.blue('Government: ' + this.negativePositiveZero(choice.government)));
-            }
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'choice',
+                    message: 'What to do?',
+                    choices: [...Object.keys(issue.choices), 'Dismiss']
+                }
+            ]).then((answers) => {
+                if (answers.choice === 'Dismiss') {
+                    console.log(chalk.red('Dismissing issue...'));
+                } else {
+                    const choice = this.issues[Object.keys(this.issues)[number]].choices[answers.choice];
+                    const aftermath = this.macro(choice.aftermath);
+
+                    console.log(chalk.blue('Aftermath: ' + aftermath + '\n'));
+                    console.log(chalk.yellow('Economy: ' + this.negativePositiveZero(choice.economy)));
+                    console.log(chalk.blue('Government: ' + this.negativePositiveZero(choice.government)));
+
+                    resolve(
+                        {
+                            aftermath: aftermath,
+                            economy: choice.economy,
+                            government: choice.government
+                        }
+                    )
+                }
+            });
         });
     }
 }
