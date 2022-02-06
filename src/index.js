@@ -36,13 +36,7 @@ function get_game(data) {
 }
 
 async function start_game(game) {
-    var nation = game.entities[0];
-
-    clear();
-
     while (true) {
-        var exit_event = false;
-
         await inquirer.prompt([
             {
                 type: 'list',
@@ -50,8 +44,7 @@ async function start_game(game) {
                 message: 'What would you like to do?',
                 choices: [
                     'Info',
-                    'Relationships',
-                    'Exit'
+                    'Relationships'
                 ]
             }
         ]).then(function(answers) {
@@ -67,11 +60,6 @@ async function start_game(game) {
                     nation.get_relationships(game).forEach((relationship) => {
                         console.log(`${chalk.bold(relationship.name)}: ${relationship.relation}`);
                     });
-                    break;
-                case 'Exit':
-                    clear()
-                    console.log(chalk.yellow(`${chalk.bold("Exiting")}...`));
-                    exit_event = true;
                     break;
             }
 
@@ -113,10 +101,6 @@ async function start_game(game) {
                 });
             }
         });
-
-        if (exit_event) {
-            break;
-        }
     }
 };
 
