@@ -41,7 +41,7 @@ async function start_game(game) {
     clear();
 
     while (true) {
-        var exit = false;
+        var exit_event = false;
 
         await inquirer.prompt([
             {
@@ -71,7 +71,7 @@ async function start_game(game) {
                 case 'Exit':
                     clear()
                     console.log(chalk.yellow(`${chalk.bold("Exiting")}...`));
-                    exit = true;
+                    exit_event = true;
                     break;
             }
 
@@ -114,7 +114,7 @@ async function start_game(game) {
             }
         });
 
-        if (exit) {
+        if (exit_event) {
             break;
         }
     }
