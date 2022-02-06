@@ -4,7 +4,6 @@ import clear from "clear";
 import { faker } from '@faker-js/faker';
 
 import { randnum } from "./random.js";
-import { readJson } from "./json.js";
 
 export class IssueHandler {
     constructor(game, issues) {
@@ -23,11 +22,11 @@ export class IssueHandler {
         }
     }
     macro(text, save={}) {
-        var new_text = text;
-
-        new_text = text.replace(/@nation/g, this.nation.name).replace(/@name/g, faker.name.findName()).replace(/@city/g, faker.address.cityName()).replace(/@randnation/g, save.randnation === undefined ? save.randnation : this.entities[randnum(0, this.entities.length - 1)].name);
-
-        return new_text;
+        return text
+          .replace(/@nation/g, this.nation.name)
+          .replace(/@name/g, faker.name.findName())
+          .replace(/@city/g, faker.address.cityName())
+          .replace(/@randnation/g, save.randnation === undefined ? save.randnation : this.entities[randnum(0, this.entities.length - 1)].name);
     }
     async infoIssue(number=randnum(0, Object.keys(this.issues).length - 1)) {
         return new Promise((resolve) => {
@@ -74,9 +73,9 @@ export class IssueHandler {
                     console.log(chalk.yellow('Economy: ' + this.negativePositiveZero(choice.economy)));
                     console.log(chalk.blue('Government: ' + this.negativePositiveZero(choice.government)));
 
+                    var relationship_bias = {}
+                    
                     if (Object.keys(choice.relationships).length > 0) {
-                        var relationship_bias = {}
-
                         console.log(chalk.green('Relationships: ' + Object.keys(choice.relationships).map(nation => {
                             relationship_bias[this.macro(nation, save)] = choice.relationships[nation];
                             return `\n${chalk.red(this.macro(nation, save) + ':')} ${this.negativePositiveZero(choice.relationships[nation])}`

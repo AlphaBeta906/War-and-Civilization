@@ -16,9 +16,8 @@ import { Economy } from './economy.js';
 import { Government } from './government.js';
 import { Game } from './game.js';
 import { IssueHandler } from './issueHandler.js';
-import { randint } from './random.js';
+import { randint, randnum } from './random.js';
 import { version } from './version.js';
-import { randnum } from './random.js';
 
 const clientId = '939055957227479040';
 
@@ -33,9 +32,7 @@ function setActivity(data) {
 }
 
 function get_game(data) {
-    const game = new Game(data.name, data.entities.map(entity => new Entity(entity.name, new Economy(entity.economy), new Government(entity.government), entity.relationship_bias)));
-
-    return game;
+    return new Game(data.name, data.entities.map(entity => new Entity(entity.name, new Economy(entity.economy), new Government(entity.government), entity.relationship_bias)));
 }
 
 async function start_game(game) {
@@ -44,6 +41,8 @@ async function start_game(game) {
     clear();
 
     while (true) {
+        var exit = false;
+
         await inquirer.prompt([
             {
                 type: 'list',
@@ -51,7 +50,8 @@ async function start_game(game) {
                 message: 'What would you like to do?',
                 choices: [
                     'Info',
-                    'Relationships'
+                    'Relationships',
+                    'Exit'
                 ]
             }
         ]).then(function(answers) {
@@ -67,6 +67,11 @@ async function start_game(game) {
                     nation.get_relationships(game).forEach((relationship) => {
                         console.log(`${chalk.bold(relationship.name)}: ${relationship.relation}`);
                     });
+                    break;
+                case 'Exit':
+                    clear()
+                    console.log(chalk.yellow(`${chalk.bold("Exiting")}...`));
+                    exit = true;
                     break;
             }
 
@@ -108,6 +113,10 @@ async function start_game(game) {
                 });
             }
         });
+
+        if (exit) {
+            break;
+        }
     }
 };
 
@@ -267,6 +276,7 @@ function create_game() {
             });
 
             start_game(game);
+            exit(0);
         } else {
             create_game();
         }
@@ -303,6 +313,7 @@ function main() {
 
                     const game = get_game(res);
                     start_game(game);
+                    exit(0);
                 }
             }).catch((err) => {
                 console.log(chalk.red(err.toString()));
@@ -402,4 +413,4 @@ function title_screen() {
     });
 }
 
-await title_screen();
+title_screen();
