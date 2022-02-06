@@ -4,10 +4,11 @@ import { Economy } from "./economy.js";
 import { Government } from "./government.js";
 
 export class Entity {
-    constructor(name, economy, government) {
+    constructor(name, economy, government, relationship_bias={}) {
         this.name = name;
         this.economy = economy === undefined ? new Economy() : economy;
         this.government = government === undefined ? new Government() : government;
+        this.relationship_bias = relationship_bias;
     }
     info() {
         console.log(`\n${chalk.bold(this.name)}:\n${chalk.bold(chalk.yellow("Economy"))}: ${this.economy.type()} (${this.economy.value})\n${chalk.bold(chalk.blue("Government"))}: ${this.government.type()} (${this.government.value})`);
@@ -19,33 +20,36 @@ export class Entity {
         return {
             name: this.name,
             economy: this.economy.value,
-            government: this.government.value
+            government: this.government.value,
+            relationship_bias: this.relationship_bias
         };
     }
     get_relation(nation) {
-        if (this.get_difference(nation) < -6) {
+        const relationship = this.get_difference(nation) + this.relationship_bias[nation.name];
+
+        if (relationship < -6) {
             return chalk.hex('#191970')("Historical Partner");
-        } else if (this.get_difference(nation) < -5) {
+        } else if (relationship < -5) {
             return chalk.hex('#000080')("Partner");
-        } else if (this.get_difference(nation) < -4) {
+        } else if (relationship < -4) {
             return chalk.blue("Ally");
-        } else if (this.get_difference(nation) < -3) {
+        } else if (relationship < -3) {
             return chalk.greenBright("Friendly");
-        } else if (this.get_difference(nation) < -2) {
+        } else if (relationship < -2) {
             return chalk.green("Trustable");
-        } else if (this.get_difference(nation) < -1) {
+        } else if (relationship < -1) {
             return chalk.hex('#228B22')("Mildly Trustable");
-        } else if (this.get_difference(nation) < 0) {
+        } else if (relationship < 0) {
             return chalk.white("Neutral");
-        } else if (this.get_difference(nation) < 1) {
+        } else if (relationship < 1) {
             return chalk.hex('#B22222')("Mildly Untrustable");
-        } else if (this.get_difference(nation) < 2) {
+        } else if (relationship < 2) {
             return chalk.red("Untrustable");
-        } else if (this.get_difference(nation) < 3) {
+        } else if (relationship < 3) {
             return chalk.redBright("Unfriendly");
-        } else if (this.get_difference(nation) < 4) {
+        } else if (relationship < 4) {
             return chalk.hex('#8b0000')("Hostile");
-        } else if (this.get_difference(nation) < 5) {
+        } else if (relationship < 5) {
             return chalk.hex('#d90000')("Archnemesis");
         } else {
             return chalk.hex('#d90000').dim("Party's Enemy");

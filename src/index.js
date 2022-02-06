@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 import clear from 'clear';
 import gradient from 'gradient-string';
-import { access, writeFile } from 'fs';
+import { mkdir, access, writeFile } from 'fs';
 import { exit } from 'process';
 import { faker } from '@faker-js/faker';
 import { Client } from 'discord-rpc';
@@ -18,6 +18,7 @@ import { Game } from './game.js';
 import { IssueHandler } from './issueHandler.js';
 import { randint } from './random.js';
 import { version } from './version.js';
+import { randnum } from './random.js';
 
 const clientId = '939055957227479040';
 
@@ -32,18 +33,92 @@ function setActivity(data) {
 }
 
 function get_game(data) {
-    const game = new Game(data.name, data.entities.map(entity => new Entity(entity.name, new Economy(entity.economy), new Government(entity.government))));
+    const game = new Game(data.name, data.entities.map(entity => new Entity(entity.name, new Economy(entity.economy), new Government(entity.government), entity.relationship_bias)));
 
     return game;
 }
 
-async function create_game() {
+async function start_game(game) {
+    var nation = game.entities[0];
+
     clear();
 
-    client.setActivity({
+    while (true) {
+        await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'option',
+                message: 'What would you like to do?',
+                choices: [
+                    'Info',
+                    'Relationships'
+                ]
+            }
+        ]).then(function(answers) {
+            switch(answers.option) {
+                case 'Info':
+                    clear()
+                    console.log(chalk.yellow(`${chalk.bold("Info")}:`));
+                    nation.info();
+                    break;
+                case 'Relationships':
+                    clear()
+                    console.log(chalk.yellow(`${chalk.bold("Relationships")}:\n`));
+                    nation.get_relationships(game).forEach((relationship) => {
+                        console.log(`${chalk.bold(relationship.name)}: ${relationship.relation}`);
+                    });
+                    break;
+            }
+
+            if (randnum(1, 4) === 1) {
+                clear();
+
+                readJson('data/issues.json').then((res) => {
+                    const issueHandler = new IssueHandler(game, res);
+
+                    issueHandler.infoIssue().then((output) => {
+                        setActivity({
+                            details: `Playing War and Civilization ${version}`,
+                            state: output.aftermath, 
+                            startTimestamp,
+                            largeImageKey: 'logo',
+                            instance: false
+                        });
+
+                        nation.economy.value += output.economy;
+                        nation.government.value += output.government;
+
+                        for (let relationship_nation in output.relationship_bias) {
+                            if (nation.relationship_bias[relationship_nation] !== undefined) {
+                                nation.relationship_bias[relationship_nation] += output.relationship_bias[relationship_nation];
+                            } else {
+                                nation.relationship_bias[relationship_nation] = output.relationship_bias[relationship_nation];
+                            }
+                        }
+
+                        game.entities[0] = nation;
+
+                        writeFile('save_files/data.json', JSON.stringify(game.get_json(), null, '\t'), function (err) {
+                            if (err) {
+                                console.log(chalk.red(err.toString()));
+                                exit(0);
+                            }
+                        });
+                    });
+                });
+            }
+        });
+    }
+};
+
+function create_game() {
+    clear();
+
+    setActivity({
         details: `Playing War and Civilization ${version}`,
         state: 'Creating a new game...',
         startTimestamp,
+        largeImageKey: 'logo',
         instance: false
     });
 
@@ -184,24 +259,26 @@ async function create_game() {
                 new Entity(faker.address.city(), new Economy(randint(-1, 1)), new Government(randint(-1, 1))),
             ]);
 
-            writeJson('data/data.json', game.get_json(), function (err) {
+            writeJson('save_files/data.json', game.get_json(), function (err) {
                 if (err) {
                     console.log(chalk.red(err.toString()));
                     exit(0)
                 }
             });
+
+            start_game(game);
         } else {
             create_game();
         }
     });
 }
 
-async function main() {
-    access('data/data.json', (err) => {
+function main() {
+    access('save_files/data.json', (err) => {
         if (!err) {
-            readJson('data/data.json').then((res) => {
-                if (Object.keys(res).length === 0) {
-                    console.log(chalk.red('No data found, new game?\n'));
+            readJson('save_files/data.json').then((res) => {
+                if (res.version.split(".")[1] !== version.split(".")[1]) {
+                    console.log(chalk.red('New features has been added since the version your data has been created. Would you like to create a new game?\n'));
             
                     inquirer.prompt([
                         {
@@ -225,26 +302,20 @@ async function main() {
                     });
 
                     const game = get_game(res);
-                    const nation = game.entities[0];
-
-                    readJson('data/issues.json').then((issues) => {
-                        const issueHandler = new IssueHandler(nation.name, issues);
-
-                        issueHandler.infoIssue(0).then((output) => {
-                            setActivity({
-                                details: `Playing War and Civilization ${version}`,
-                                state: output.aftermath, 
-                                startTimestamp,
-                                instance: false
-                            });
-                        });
-                    });
+                    start_game(game);
                 }
             }).catch((err) => {
                 console.log(chalk.red(err.toString()));
             });
         } else {
-            writeFile('data/data.json', '{}', function (err) {
+            mkdir('save_files', (err) => {
+                if (err) {
+                    console.log(chalk.red(err.toString()));
+                    exit(0);
+                }
+            });
+
+            writeFile('save_files/data.json', '{}', function (err) {
                 if (err) {
                     console.log(chalk.red(err.toString()));
                     exit(0)
@@ -270,7 +341,7 @@ async function main() {
     });
 }
 
-async function title_screen() {
+function title_screen() {
     clear();
 
     client.on('ready', () => {
@@ -278,6 +349,7 @@ async function title_screen() {
             details: `Playing War and Civilization ${version}`,
             state: 'On a quest to conquer the world...',
             startTimestamp,
+            largeImageKey: 'logo',
             instance: false
         });
     });
