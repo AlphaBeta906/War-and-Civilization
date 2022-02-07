@@ -1,0 +1,4 @@
+/node_modules
+/exclude
+/save_files
+.DS_Store
