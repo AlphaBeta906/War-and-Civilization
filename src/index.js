@@ -41,7 +41,7 @@ async function start_game(game) {
     var exit_game = false;
 
     while (true) {
-        inquirer.prompt([
+        await inquirer.prompt([
             {
                 type: 'list',
                 name: 'option',
