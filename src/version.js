@@ -1,1 +1,5 @@
-export const version = '1.6.0';
+import { readJson } from "./json.js";
+
+const res = await readJson('package.json');
+
+export const version = res.version

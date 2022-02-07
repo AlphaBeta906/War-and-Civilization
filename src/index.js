@@ -36,86 +36,83 @@ function get_game(data) {
 }
 
 async function start_game(game) {
-    return new Promise((resolve, reject) => {
-        var nation = game.entities[0];
-        var exit_game = false;
+    var nation = game.entities[0];
+    var exit_game = false;
 
-        while (true) {
-            await inquirer.prompt([
-                {
-                    type: 'list',
-                    name: 'option',
-                    message: 'What would you like to do?',
-                    choices: [
-                        'Info',
-                        'Relationships',
-                        'Exit'
-                    ]
-                }
-            ]).then(function(answers) {
-                switch(answers.option) {
-                    case 'Info':
-                        clear()
-                        console.log(chalk.yellow(`${chalk.bold("Info")}:`));
-                        nation.info();
-                        break;
-                    case 'Relationships':
-                        clear()
-                        console.log(chalk.yellow(`${chalk.bold("Relationships")}:\n`));
-                        nation.get_relationships(game).forEach((relationship) => {
-                            console.log(`${chalk.bold(relationship.name)}: ${relationship.relation}`);
+    while (true) {
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'option',
+                message: 'What would you like to do?',
+                choices: [
+                    'Info',
+                    'Relationships',
+                    'Exit'
+                ]
+            }
+        ]).then(function(answers) {
+            switch(answers.option) {
+                case 'Info':
+                    clear()
+                    console.log(chalk.yellow(`${chalk.bold("Info")}:`));
+                    nation.info();
+                    break;
+                case 'Relationships':
+                    clear()
+                    console.log(chalk.yellow(`${chalk.bold("Relationships")}:\n`));
+                    nation.get_relationships(game).forEach((relationship) => {
+                        console.log(`${chalk.bold(relationship.name)}: ${relationship.relation}`);
+                    });
+                    break;
+                case 'Exit':
+                    exit_game = true;
+                    break;
+            }
+
+            if (randnum(1, 4) === 1) {
+                clear();
+
+                readJson('data/issues.json').then((res) => {
+                    const issueHandler = new IssueHandler(game, res);
+
+                    issueHandler.infoIssue().then((output) => {
+                        setActivity({
+                            details: `Playing War and Civilization ${version}`,
+                            state: output.aftermath, 
+                            startTimestamp,
+                            largeImageKey: 'logo',
+                            instance: false
                         });
-                        break;
-                    case 'Exit':
-                        exit_game = true;
-                        break;
-                }
 
-                if (randnum(1, 4) === 1) {
-                    clear();
+                        nation.economy.value += output.economy;
+                        nation.government.value += output.government;
 
-                    readJson('data/issues.json').then((res) => {
-                        const issueHandler = new IssueHandler(game, res);
-
-                        issueHandler.infoIssue().then((output) => {
-                            setActivity({
-                                details: `Playing War and Civilization ${version}`,
-                                state: output.aftermath, 
-                                startTimestamp,
-                                largeImageKey: 'logo',
-                                instance: false
-                            });
-
-                            nation.economy.value += output.economy;
-                            nation.government.value += output.government;
-
-                            for (let relationship_nation in output.relationship_bias) {
-                                if (nation.relationship_bias[relationship_nation] !== undefined) {
-                                    nation.relationship_bias[relationship_nation] += output.relationship_bias[relationship_nation];
-                                } else {
-                                    nation.relationship_bias[relationship_nation] = output.relationship_bias[relationship_nation];
-                                }
+                        for (let relationship_nation in output.relationship_bias) {
+                            if (nation.relationship_bias[relationship_nation] !== undefined) {
+                                nation.relationship_bias[relationship_nation] += output.relationship_bias[relationship_nation];
+                            } else {
+                                nation.relationship_bias[relationship_nation] = output.relationship_bias[relationship_nation];
                             }
+                        }
 
-                            game.entities[0] = nation;
+                        game.entities[0] = nation;
 
-                            writeFile('save_files/data.json', JSON.stringify(game.get_json(), null, '\t'), function (err) {
-                                if (err) {
-                                    console.log(chalk.red(err.toString()));
-                                    exit(0);
-                                }
-                            });
+                        writeFile('save_files/data.json', JSON.stringify(game.get_json(), null, '\t'), function (err) {
+                            if (err) {
+                                console.log(chalk.red(err.toString()));
+                                exit(0);
+                            }
                         });
                     });
-                }
-            });
-
-            if (exit_game) {
-                resolve();
-                break;
+                });
             }
+        });
+
+        if (exit_game) {
+            exit(0);
         }
-    });
+    }
 };
 
 function create_game() {

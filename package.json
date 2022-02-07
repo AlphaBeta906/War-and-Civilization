@@ -1,12 +1,17 @@
 {
   "name": "war-and-civilization",
-  "version": "1.0.0",
+  "version": "1.6.0",
   "description": "",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlphaBeta906/War-and-Civilization"
+  },
   "main": "index.js",
   "scripts": {
     "start": "node ./src/index.js"
   },
+  "bin": "./src/index.js",
   "author": "",
   "license": "ISC",
   "dependencies": {
