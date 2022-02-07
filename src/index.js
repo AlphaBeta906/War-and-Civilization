@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 import clear from 'clear';
 import gradient from 'gradient-string';
+import UpdateNotifier from 'update-notifier';
 import { mkdir, access, writeFile } from 'fs';
 import { exit } from 'process';
 import { faker } from '@faker-js/faker';
@@ -368,6 +369,15 @@ function title_screen() {
         ) + '\n\n' +
         chalk.yellow('By: ') + chalk.cyan('AlphaBeta906') + ' - ' + chalk.red('v' + version) + '\n\n'
     );
+
+    readJson('package.json').then((res) => {
+        UpdateNotifier({
+            pkg: res,
+        }).notify();
+    }).catch((err) => {
+        console.log(chalk.red(err.toString()));
+        exit(0);
+    });
 
     inquirer.prompt([
         {
