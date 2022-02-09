@@ -1,6 +1,6 @@
 {
   "name": "war-and-civilization",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "",
   "type": "module",
   "repository": {
@@ -21,7 +21,6 @@
     "discord-rpc": "^4.0.1",
     "figlet": "^1.5.2",
     "gradient-string": "^2.0.0",
-    "inquirer": "^8.2.0",
-    "update-notifier": "^5.1.0"
+    "inquirer": "^8.2.0"
   }
 }
