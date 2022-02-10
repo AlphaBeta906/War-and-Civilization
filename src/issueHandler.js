@@ -54,7 +54,7 @@ export class IssueHandler {
         }
         console.log()
 
-        await inquirer.prompt([
+        inquirer.prompt([
             {
                 type: 'list',
                 name: 'choice',

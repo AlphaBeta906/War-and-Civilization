@@ -35,100 +35,109 @@ function get_game(data) {
     return new Game(data.name, data.entities.map(entity => new Entity(entity.name, new Economy(entity.economy), new Government(entity.government), entity.relationship_bias)));
 }
 
+async function wait_until_var(val, value) {
+    return new Promise((resolve, reject) => {
+        while (true) {
+            if (val === value) {
+                resolve();
+                break;
+            }
+        }
+    });
+}
+
 async function start_game(game) {
     var nation = game.entities[0];
     var exit_game = false;
     var on_issue = false;
+    var answer = '';
     const issueHandler = new IssueHandler(game);
 
     while (true) {
-        if (!on_issue) {
-            await inquirer.prompt([
-                {
-                    type: 'list',
-                    name: 'option',
-                    message: 'What would you like to do?',
-                    choices: [
-                        'Info',
-                        'Relationships',
-                        'Issue Board',
-                        'Exit'
-                    ]
-                }
-            ]).then(function(answers) {
-                switch(answers.option) {
-                    case 'Info':
-                        clear()
-                        console.log(chalk.yellow(`${chalk.bold("Info")}:`));
-                        nation.info();
-                        break;
-                    case 'Relationships':
-                        clear()
-                        console.log(chalk.yellow(`${chalk.bold("Relationships")}:\n`));
-                        nation.get_relationships(game).forEach((relationship) => {
-                            console.log(`${chalk.bold(relationship.name)}: ${relationship.relation}`);
-                        });
-                        break;
-                    case 'Issue Board':
-                        clear()
-                        console.log(chalk.yellow(`${chalk.bold("Finding issuess...")}:\n`));
+        await wait_until_var(on_issue, false);
 
-                        if (1) {
-                            clear();
-
-                            const get_issue = async () => {
-                                on_issue = true;
-
-                                await issueHandler.infoIssue().then((output) => {
-                                    if (output !== undefined) {
-                                        setActivity({
-                                            details: `Playing War and Civilization ${version}`,
-                                            state: output.aftermath, 
-                                            startTimestamp,
-                                            largeImageKey: 'logo',
-                                            instance: false
-                                        });
-                        
-                                        nation.economy.value += output.economy;
-                                        nation.government.value += output.government;
-                        
-                                        for (let relationship_nation in output.relationship_bias) {
-                                            if (nation.relationship_bias[relationship_nation] !== undefined) {
-                                                nation.relationship_bias[relationship_nation] += output.relationship_bias[relationship_nation];
-                                            } else {
-                                                nation.relationship_bias[relationship_nation] = output.relationship_bias[relationship_nation];
-                                            }
-                                        }
-                        
-                                        game.entities[0] = nation;
-                        
-                                        writeFile('save_files/data.json', JSON.stringify(game.get_json(), null, '\t'), function (err) {
-                                            if (err) {
-                                                console.log(chalk.red(err.toString()));
-                                                exit(0);
-                                            }
-                                        });
-
-                                        on_issue = false
-                                    }
-                                });
-                            };
-
-                            get_issue();
-                        } else {
-                            console.log(chalk.yellow(`${chalk.bold(`${nation.name}`)} is gloriously issue free!`));
-                        }
-
-                        break;
-                    case 'Exit':
-                        exit_game = true;
-                        break;
-                }
-            });
-
-            if (exit_game) {
-                exit(0);
+        await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'option',
+                message: 'What would you like to do?',
+                choices: [
+                    'Info',
+                    'Relationships',
+                    'Issue Board',
+                    'Exit'
+                ]
             }
+        ]).then(function(answers) {
+            answer = answers.option;
+        });
+
+        switch (answer) {
+            case 'Info':
+                clear()
+                console.log(chalk.yellow(`${chalk.bold("Info")}:`));
+                nation.info();
+                break;
+            case 'Relationships':
+                clear()
+                console.log(chalk.yellow(`${chalk.bold("Relationships")}:\n`));
+                nation.get_relationships(game).forEach((relationship) => {
+                    console.log(`${chalk.bold(relationship.name)}: ${relationship.relation}`);
+                });
+                break;
+            case 'Issue Board':
+                clear()
+                console.log(chalk.yellow(`${chalk.bold("Finding issuess...")}:\n`));
+
+                if (randnum(1, 4) === 1) {
+                    clear();
+                    on_issue = true;
+
+                    issueHandler.infoIssue().then((output) => {
+                        if (output !== undefined) {
+                            setActivity({
+                                details: `Playing War and Civilization ${version}`,
+                                state: output.aftermath, 
+                                startTimestamp,
+                                largeImageKey: 'logo',
+                                instance: false
+                            });
+            
+                            nation.economy.value += output.economy;
+                            nation.government.value += output.government;
+            
+                            for (let relationship_nation in output.relationship_bias) {
+                                if (nation.relationship_bias[relationship_nation] !== undefined) {
+                                    nation.relationship_bias[relationship_nation] += output.relationship_bias[relationship_nation];
+                                } else {
+                                    nation.relationship_bias[relationship_nation] = output.relationship_bias[relationship_nation];
+                                }
+                            }
+            
+                            game.entities[0] = nation;
+            
+                            writeFile('save_files/data.json', JSON.stringify(game.get_json(), null, '\t'), function (err) {
+                                if (err) {
+                                    console.log(chalk.red(err.toString()));
+                                    exit(0);
+                                }
+                            });
+
+                            on_issue = false
+                        }
+                    });
+                } else {
+                    console.log(chalk.yellow(`${chalk.bold(`${nation.name}`)} is gloriously issue free!`));
+                }
+
+                break;
+            case 'Exit':
+                exit_game = true;
+                break;
+        }
+
+        if (exit_game) {
+            exit(0);
         }
     }
 };
