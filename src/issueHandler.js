@@ -29,7 +29,7 @@ export class IssueHandler {
           .replace(/@city/g, faker.address.cityName())
           .replace(/@randnation/g, save.randnation === undefined ? save.randnation : this.entities[randnum(0, this.entities.length - 1)].name);
     }
-    async infoIssue(number=randnum(0, Object.keys(this.issues).length - 1)) {
+    infoIssue(number=randnum(0, Object.keys(this.issues).length - 1)) {
         const issue = this.issues[Object.keys(this.issues)[number]];
 
         var save = {};
@@ -82,14 +82,12 @@ export class IssueHandler {
                     })));
                 }
 
-                Promise.resolve(
-                    {
-                        aftermath: aftermath,
-                        economy: choice.economy,
-                        government: choice.government,
-                        relationship_bias: relationship_bias
-                    }
-                );
+                return {
+                    aftermath: aftermath,
+                    economy: choice.economy,
+                    government: choice.government,
+                    relationship_bias: relationship_bias
+                }
             }
         })
     }
