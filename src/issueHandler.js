@@ -29,39 +29,41 @@ export class IssueHandler {
           .replace(/@city/g, faker.address.cityName())
           .replace(/@randnation/g, save.randnation === undefined ? save.randnation : this.entities[randnum(0, this.entities.length - 1)].name);
     }
-    infoIssue(number=randnum(0, Object.keys(this.issues).length - 1)) {
-        const issue = this.issues[Object.keys(this.issues)[number]];
+    async infoIssue(number = randnum(0, Object.keys(this.issues).length - 1)) {
+        return new Promise(async (resolve, reject) => {
+            const issue = this.issues[Object.keys(this.issues)[number]];
 
-        var save = {};
+            var save = {};
 
-        if (issue.save !== undefined) {
-            for (let save_thing of issue.save) {
-                switch (save_thing) {
-                    case 'randnation':
-                        save.randnation = this.entities[randnum(0, this.entities.length - 1)].name;
-                        break;
-                    default:
-                        break;
+            if (issue.save !== undefined) {
+                for (let save_thing of issue.save) {
+                    switch (save_thing) {
+                        case 'randnation':
+                            save.randnation = this.entities[randnum(0, this.entities.length - 1)].name;
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
-        }
 
-        clear()
-        console.log(chalk.blue(this.macro(`Issue #${number}: ${Object.keys(this.issues)[number]}`, save)));
-        console.log(chalk.reset(this.macro(issue.description + '\n', save)));
-        for (let choice in issue.choices) {
-            console.log(`${chalk.red(choice)}: ${chalk.reset(this.macro(issue.choices[choice].message, save))}`);
-        }
-        console.log()
-
-        inquirer.prompt([
-            {
-                type: 'list',
-                name: 'choice',
-                message: 'What to do?',
-                choices: [...Object.keys(issue.choices), 'Dismiss']
+            clear()
+            console.log(chalk.blue(this.macro(`Issue #${number}: ${Object.keys(this.issues)[number]}`, save)));
+            console.log(chalk.reset(this.macro(issue.description + '\n', save)));
+            for (let choice in issue.choices) {
+                console.log(`${chalk.red(choice)}: ${chalk.reset(this.macro(issue.choices[choice].message, save))}`);
             }
-        ]).then((answers) => {
+            console.log()
+
+            const answers = await inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'choice',
+                    message: 'What to do?',
+                    choices: [...Object.keys(issue.choices), 'Dismiss']
+                }
+            ]);
+
             if (answers.choice === 'Dismiss') {
                 console.log(chalk.red('Dismissing issue...'));
             } else {
@@ -82,13 +84,13 @@ export class IssueHandler {
                     })));
                 }
 
-                return {
+                resolve({
                     aftermath: aftermath,
                     economy: choice.economy,
                     government: choice.government,
                     relationship_bias: relationship_bias
-                }
+                });
             }
-        })
+        });
     }
 }

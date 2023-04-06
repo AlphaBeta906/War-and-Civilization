@@ -35,23 +35,9 @@ function get_game(data) {
     return new Game(data.name, data.entities.map(entity => new Entity(entity.name, new Economy(entity.economy), new Government(entity.government), entity.relationship_bias)));
 }
 
-async function wait_until(condition, timeout = 1000) {
-    return new Promise((resolve, reject) => {
-        while (true) {
-            if (condition) {
-                resolve();
-                break;
-            }
-
-            setTimeout(() => {}, timeout);
-        }
-    });
-}
-
 async function start_game(game) {
     var nation = game.entities[0];
     var exit_game = false;
-    var on_issue = false;
     var answer = '';
     const issueHandler = new IssueHandler(game);
 
@@ -61,7 +47,7 @@ async function start_game(game) {
                 clear()
                 console.log(chalk.yellow(`${chalk.bold("Info")}:`));
                 nation.info();
-                ask()
+                answer = ""
                 break;
             case 'Relationships':
                 clear()
@@ -69,60 +55,43 @@ async function start_game(game) {
                 nation.get_relationships(game).forEach((relationship) => {
                     console.log(`${chalk.bold(relationship.name)}: ${relationship.relation}`);
                 });
-                await ask()
                 break;
             case 'Issue Board':
-                var output = 'Hi'
-                await wait_until(output !== '' && output !== undefined)
-                output = ''
+                clear();
+                
+                let output = await issueHandler.infoIssue()
 
-                clear()
-                console.log(chalk.yellow(`${chalk.bold("Finding issuess...")}:\n`));
-
-                if (1) {
-                    clear();
-                    on_issue = true;
-
-                    output = issueHandler.infoIssue()
-                    await wait_until(output !== '' && output !== undefined)
-
-                    if (output !== undefined) {
-                        setActivity({
-                            details: `Playing War and Civilization ${version}`,
-                            state: output.aftermath, 
-                            startTimestamp,
-                            largeImageKey: 'logo',
-                            instance: false
-                        });
-        
-                        nation.economy.value += output.economy;
-                        nation.government.value += output.government;
-        
-                        for (let relationship_nation in output.relationship_bias) {
-                            if (nation.relationship_bias[relationship_nation] !== undefined) {
-                                nation.relationship_bias[relationship_nation] += output.relationship_bias[relationship_nation];
-                            } else {
-                                nation.relationship_bias[relationship_nation] = output.relationship_bias[relationship_nation];
-                            }
+                if (output !== undefined) {
+                    setActivity({
+                        details: `Playing War and Civilization ${version}`,
+                        state: output.aftermath, 
+                        startTimestamp,
+                        largeImageKey: 'logo',
+                        instance: false
+                    });
+    
+                    nation.economy.value += output.economy;
+                    nation.government.value += output.government;
+    
+                    for (let relationship_nation in output.relationship_bias) {
+                        if (nation.relationship_bias[relationship_nation] !== undefined) {
+                            nation.relationship_bias[relationship_nation] += output.relationship_bias[relationship_nation];
+                        } else {
+                            nation.relationship_bias[relationship_nation] = output.relationship_bias[relationship_nation];
                         }
-        
-                        game.entities[0] = nation;
-        
-                        writeFile('save_files/data.json', JSON.stringify(game.get_json(), null, '\t'), function (err) {
-                            if (err) {
-                                console.log(chalk.red(err.toString()));
-                                exit(0);
-                            }
-                        });
-
-                        on_issue = false
                     }
-                } else {
-                    console.log(chalk.yellow(`${chalk.bold(`${nation.name}`)} is gloriously issue free!`));
+    
+                    game.entities[0] = nation;
+    
+                    writeFile('save_files/data.json', JSON.stringify(game.get_json(), null, '\t'), function (err) {
+                        if (err) {
+                            console.log(chalk.red(err.toString()));
+                            exit(0);
+                        }
+                    });
                 }
 
-                // await ask()
-                break;
+                break;              
             case 'Exit':
                 exit_game = true;
                 break;
@@ -134,9 +103,10 @@ async function start_game(game) {
                 nation.get_relationships(game).forEach((relationship) => {
                     console.log(`${chalk.bold(relationship.name)}: ${relationship.relation}`);
                 });
-                await ask()
                 break;
         }
+
+        await ask();
 
         async function ask() {
             await inquirer.prompt([
