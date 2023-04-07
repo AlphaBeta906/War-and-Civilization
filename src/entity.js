@@ -11,7 +11,7 @@ export class Entity {
         this.relationship_bias = relationship_bias;
     }
     info() {
-        console.log(`\n${chalk.bold(this.name)}:\n${chalk.bold(chalk.yellow("Economy"))}: ${this.economy.type()} (${this.economy.value})\n${chalk.bold(chalk.blue("Government"))}: ${this.government.type()} (${this.government.value})`);
+        console.log(`\n${chalk.bold(this.name)}:\n${chalk.bold(chalk.yellow("Economy"))}: ${this.economy.type()} (${this.economy.value.toFixed(2)})\n${chalk.bold(chalk.blue("Government"))}: ${this.government.type()} (${this.government.value.toFixed(2)})`);
     }
     get_difference(nation) {
         return (this.economy.value - nation.economy.value) + (this.government.value - nation.government.value);

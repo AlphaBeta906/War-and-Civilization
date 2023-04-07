@@ -14,7 +14,7 @@ export class Economy {
             return chalk.red("Communist");
         } else if (value < 0.5) {
             return chalk.white("Centrist")
-        } else if (value < 0.75) {
+        } else {
             return chalk.green("Capitalist");
         }
     }

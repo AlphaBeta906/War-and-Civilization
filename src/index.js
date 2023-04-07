@@ -37,7 +37,6 @@ function get_game(data) {
 
 async function start_game(game) {
     var nation = game.entities[0];
-    var exit_game = false;
     var answer = '';
     const issueHandler = new IssueHandler(game);
 
@@ -93,19 +92,19 @@ async function start_game(game) {
 
                 break;              
             case 'Exit':
-                exit_game = true;
-                break;
+                exit(0);
             case '':
                 console.log(chalk.yellow(`${chalk.bold("Welcome to War and Civilization")}:\n`));
-                console.log(chalk.yellow(`${chalk.bold("Info")}:`));
+                console.log(chalk.yellow(`${chalk.bold("Info")}:\n`));
                 nation.info();
-                console.log(chalk.yellow(`${chalk.bold("Relationships")}:\n`));
+                console.log(chalk.yellow(`\n${chalk.bold("Relationships")}:\n`));
                 nation.get_relationships(game).forEach((relationship) => {
                     console.log(`${chalk.bold(relationship.name)}: ${relationship.relation}`);
                 });
                 break;
         }
 
+        console.log()
         await ask();
 
         async function ask() {
@@ -124,10 +123,6 @@ async function start_game(game) {
             ]).then(function(answers) {
                 answer = answers.option;
             });
-
-            if (exit_game) {
-                exit(0);
-            }
         }
     }
 };

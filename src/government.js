@@ -14,7 +14,7 @@ export class Government {
             return chalk.blue("Authoritarian");
         } else if (value < 0.5) {
             return chalk.white("Centrist")
-        } else if (value < 0.75) {
+        } else {
             return chalk.yellow("Libertarian");
         }
     }
